@@ -13,3 +13,4 @@
 
 ## Ресурсы команды
 - [**YouTrack**](https://tp-project.youtrack.cloud/dashboard?id=213-2)
+- [**MIRO**](https://miro.com/app/board/uXjVIaDbFEI=/)
