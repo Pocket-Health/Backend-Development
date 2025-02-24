@@ -14,3 +14,4 @@
 ## Ресурсы команды
 - [**YouTrack**](https://tp-project.youtrack.cloud/dashboard?id=213-2)
 - [**MIRO**](https://miro.com/app/board/uXjVIaDbFEI=/)
+- [**Figma**](https://www.figma.com/design/F01e7qHR0zD706sozrB7Nu/Programming-technology)
