@@ -23,7 +23,7 @@ jobs:
           java-version: 17
 
       - name: Unit Tests
-        run: mvb -B test --file pom.xml
+        run: mvn -B test --file pom.xml
 
       - name: Build the application
         run: |
