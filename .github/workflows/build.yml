@@ -19,4 +19,4 @@ jobs:
           distribution: 'jdkfile'
           java-version: '17'
       - name: Maven Package
-        run: mvn -B clean package -DskipTests
+        run: mvn -B clean package verify
