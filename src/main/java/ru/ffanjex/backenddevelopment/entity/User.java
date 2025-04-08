@@ -42,6 +42,5 @@ public class User {
 
     @Transient
     @Size(max = 255)
-    @NotNull(message = "Confirm password can't be null")
     private String confirmPassword;
 }
