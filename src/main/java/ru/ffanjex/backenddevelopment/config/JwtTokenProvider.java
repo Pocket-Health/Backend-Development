@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import ru.ffanjex.backenddevelopment.entity.User;
+
 import java.util.Date;
 import java.util.List;
 
@@ -63,5 +64,10 @@ public class JwtTokenProvider {
         } catch (JWTVerificationException e) {
             return false;
         }
+    }
+
+    public String getEmailFromToken(String token) {
+        DecodedJWT decoded = JWT.require(algorithm).build().verify(token);
+        return decoded.getSubject(); // email пользователя
     }
 }
