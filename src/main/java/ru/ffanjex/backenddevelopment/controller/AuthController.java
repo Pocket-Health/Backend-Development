@@ -3,6 +3,7 @@ package ru.ffanjex.backenddevelopment.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.ffanjex.backenddevelopment.dto.JwtResponse;
 import ru.ffanjex.backenddevelopment.dto.MedicalCardDTO;
@@ -27,8 +28,9 @@ public class AuthController {
     }
 
     @PostMapping("/register/medical_card")
-    public ResponseEntity<String> registerMedicalCard(@Valid @RequestBody MedicalCardDTO dto) {
-        User user = userService.getUserByEmail(dto.getEmail());
+    public ResponseEntity<String> registerMedicalCard(@Valid @RequestBody MedicalCardDTO dto,
+                                                      @RequestParam String email) {
+        User user = userService.getUserByEmail(email);
         if (user == null) {
             return ResponseEntity.status(400).body("User not found");
         }

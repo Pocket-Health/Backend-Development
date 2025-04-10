@@ -7,16 +7,13 @@ import ru.ffanjex.backenddevelopment.dto.MedicalCardDTO;
 import ru.ffanjex.backenddevelopment.entity.MedicalCard;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.repository.MedicalCardRepository;
-import ru.ffanjex.backenddevelopment.repository.UserRepository;
 
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class MedicalCardService {
 
     private final MedicalCardRepository medicalCardRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public MedicalCardDTO createMedicalCard(MedicalCardDTO dto, User user) {
