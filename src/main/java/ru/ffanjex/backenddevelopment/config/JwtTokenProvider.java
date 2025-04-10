@@ -68,6 +68,6 @@ public class JwtTokenProvider {
 
     public String getEmailFromToken(String token) {
         DecodedJWT decoded = JWT.require(algorithm).build().verify(token);
-        return decoded.getSubject(); // email пользователя
+        return decoded.getSubject();
     }
 }
