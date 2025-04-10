@@ -3,7 +3,6 @@ package ru.ffanjex.backenddevelopment.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.ffanjex.backenddevelopment.dto.JwtResponse;
 import ru.ffanjex.backenddevelopment.dto.MedicalCardDTO;
