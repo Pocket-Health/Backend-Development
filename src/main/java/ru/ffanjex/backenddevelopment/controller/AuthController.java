@@ -8,6 +8,7 @@ import ru.ffanjex.backenddevelopment.dto.JwtResponse;
 import ru.ffanjex.backenddevelopment.dto.MedicalCardDTO;
 import ru.ffanjex.backenddevelopment.dto.UserLoginDTO;
 import ru.ffanjex.backenddevelopment.dto.UserRegistrationDTO;
+import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.service.MedicalCardService;
 import ru.ffanjex.backenddevelopment.service.UserService;
 
@@ -20,17 +21,19 @@ public class AuthController {
     private final MedicalCardService medicalCardService;
 
     @PostMapping("/register/users")
-    public ResponseEntity<?> register(@Valid @RequestBody UserRegistrationDTO dto) {
+    public ResponseEntity<String> register(@Valid @RequestBody UserRegistrationDTO dto) {
         userService.registerUser(dto);
-        return ResponseEntity.ok("User registered successfully");
+        return ResponseEntity.status(201).body("User registered successfully");
     }
 
     @PostMapping("/register/medical_card")
-    public ResponseEntity<?> registerMedicalCard(@Valid @RequestBody MedicalCardDTO dto,
-                                                 @RequestHeader("Authorization") String authHeader) {
-        String token = authHeader.replace("Bearer ", "");
-        MedicalCardDTO createdCard = medicalCardService.createMedicalCard(dto, token);
-        return ResponseEntity.ok(createdCard);
+    public ResponseEntity<String> registerMedicalCard(@Valid @RequestBody MedicalCardDTO dto) {
+        User user = userService.getUserByEmail(dto.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(400).body("User not found");
+        }
+        medicalCardService.createMedicalCard(dto, user);
+        return ResponseEntity.status(201).body("Medical card created successfully");
     }
 
     @PostMapping("/login")
