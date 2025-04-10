@@ -6,6 +6,9 @@ import java.math.BigDecimal;
 
 @Data
 public class MedicalCardDTO {
+    private String email;
+    private String password;
+    private String confirmPassword;
     private String fullName;
     private Integer height;
     private BigDecimal weight;
