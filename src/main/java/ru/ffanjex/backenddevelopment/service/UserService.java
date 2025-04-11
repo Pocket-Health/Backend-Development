@@ -16,6 +16,8 @@ import ru.ffanjex.backenddevelopment.dto.UserRegistrationDTO;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.repository.UserRepository;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -71,4 +73,15 @@ public class UserService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
     }
 
+    public UUID getCurrentUserId() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"))
+                .getId();
+    }
+
+    public User getUserById(UUID userId) {
+        return userRepository.findUserById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
 }
