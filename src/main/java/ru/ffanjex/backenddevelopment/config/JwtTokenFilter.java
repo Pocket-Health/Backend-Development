@@ -31,9 +31,18 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String header = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
+
             if (jwtTokenProvider.isValidToken(token)) {
                 SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(token));
+            } else {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Invalid or expired token");
+                return;
             }
+        } else {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Missing Authorization header");
+            return;
         }
 
         filterChain.doFilter(request, response);

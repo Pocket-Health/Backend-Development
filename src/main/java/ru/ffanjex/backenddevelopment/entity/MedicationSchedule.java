@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -17,7 +19,7 @@ import java.util.UUID;
 public class MedicationSchedule {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue
     @Column(name = "id", nullable = false)
     private UUID id;
 
@@ -26,20 +28,18 @@ public class MedicationSchedule {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Size(max = 255)
     @NotNull
+    @Size(max = 255)
     @Column(name = "medication_name", nullable = false)
     private String medicationName;
 
     @NotNull
-    @ElementCollection
-    @CollectionTable(name = "scheduled_days", joinColumns = @JoinColumn(name = "medication_schedule_id"))
-    @Column(name = "scheduled_day")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "scheduled_day", nullable = false)
     private List<Integer> scheduledDays;
 
     @NotNull
-    @ElementCollection
-    @CollectionTable(name = "scheduled_times", joinColumns = @JoinColumn(name = "medication_schedule_id"))
-    @Column(name = "scheduled_time")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "scheduled_time", nullable = false)
     private List<LocalTime> scheduledTimes;
 }
