@@ -13,6 +13,7 @@ import ru.ffanjex.backenddevelopment.repository.UserRepository;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -50,6 +51,31 @@ public class MedicationScheduleService {
         schedule.setUser(user);
 
         return medicationScheduleRepository.save(schedule);
+    }
+
+    public MedicationSchedule editSchedule(UUID id, MedicationScheduleRequest newRequest) {
+        String currentUserEmail = getCurrentUserEmail();
+        User user = findUserByEmail(currentUserEmail);
+
+        validateRequest(newRequest);
+
+        Optional<MedicationSchedule> scheduleOpt = medicationScheduleRepository.findById(id);
+        if (scheduleOpt.isEmpty()) {
+            throw new IllegalArgumentException("Schedule not found");
+        }
+
+        MedicationSchedule medicationSchedule = scheduleOpt.get();
+
+        if (!medicationSchedule.getUser().equals(user)) {
+            throw new IllegalArgumentException("Schedule does not belong to the current user");
+        }
+
+        medicationSchedule.setMedicationName(newRequest.getMedication_name());
+        medicationSchedule.setScheduledDays(newRequest.getDays());
+        medicationSchedule.setScheduledTimes(newRequest.getTimes());
+
+        MedicationSchedule updatedSchedule = medicationScheduleRepository.save(medicationSchedule);
+        return updatedSchedule;
     }
 
     public void deleteSchedule(UUID id) {

@@ -37,6 +37,17 @@ public class MedicationScheduleController {
         return ResponseEntity.status(HttpStatus.CREATED).body(schedule);
     }
 
+    @PutMapping("/edit_schedule/{id}")
+    public ResponseEntity<MedicationSchedule> editSchedule(@PathVariable UUID id,
+                                                           @Validated @RequestBody MedicationScheduleRequest request) {
+        MedicationSchedule updatedSchedule = medicationScheduleService.editSchedule(id, request);
+        if (updatedSchedule != null) {
+            return ResponseEntity.ok(updatedSchedule);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
     @DeleteMapping("/delete_schedule/{id}")
     public ResponseEntity<Void> deleteSchedule(@PathVariable UUID id) {
         medicationScheduleService.deleteSchedule(id);
