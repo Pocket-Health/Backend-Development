@@ -9,7 +9,7 @@ import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.service.UserService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

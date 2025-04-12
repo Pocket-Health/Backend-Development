@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/medical_schedule")
+@RequestMapping("/api/medical_schedule")
 @RequiredArgsConstructor
 @Validated
 public class MedicationScheduleController {
