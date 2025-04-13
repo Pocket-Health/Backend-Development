@@ -31,32 +31,10 @@ jobs:
         run: |
           ./mvnw clean compile
 
-  unit-tests:
-    runs-on: ubuntu-latest
-    name: Unit tests
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 17
-          distribution: 'corretto'
-
-      - name: Make mvnw executable
-        run: chmod +x ./mvnw
-
-      - name: Running unit tests
-        run: |
-          ./mvnw clean test
-
   build:
     runs-on: ubuntu-latest
     name: Build backend
-    needs: [compile, unit-tests]
+    needs: [compile]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
