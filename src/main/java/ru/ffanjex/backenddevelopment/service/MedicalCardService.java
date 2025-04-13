@@ -21,7 +21,7 @@ public class MedicalCardService {
     private final MedicalCardRepository medicalCardRepository;
     private final UserService userService;
 
-    public MedicalCard getAllMedicalCards() {
+    public MedicalCard getMedicalCard() {
         String currentUserEmail = getCurrentUserEmail();
         User user = userService.getUserByEmail(currentUserEmail);
         Optional<MedicalCard> medicalCards = medicalCardRepository.findByUser(user);
