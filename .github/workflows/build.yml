@@ -1,4 +1,4 @@
-name: Build
+name: PocketHealth Backend API Pipeline
 
 on:
   pull_request:
@@ -9,23 +9,121 @@ on:
       - 'main'
 
 jobs:
-  build:
-    name: Build and Deploy Spring Boot application
+  compile:
     runs-on: ubuntu-latest
+    name: Compile project
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Setup Amazon Corretto 17
+      - name: Setup JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'corretto'
           java-version: 17
+          distribution: 'corretto'
 
-      - name: Unit Tests
-        run: mvn -B test --file pom.xml
-
-      - name: Build the application
+      - name: Compile project
         run: |
-          mvn clean
-          mvn -B package --file pom.xml
+          cd Backend-Development
+          ./mvnw clean compile
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    name: Unit tests
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'corretto'
+
+      - name: Running unit tests
+        run: |
+          cd Backend-Development
+          ./mvnw clean test
+
+  build:
+    runs-on: ubuntu-latest
+    name: Build backend
+    needs: [compile, unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'corretto'
+
+      - name: Build project
+        run: |
+          cd Backend-Development
+          ./mvnw clean package
+
+  build-image:
+    name: Build Docker image
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'corretto'
+
+      - name: Extract project version
+        id: extract_version
+        run: |
+          cd Backend-Development
+          echo "VERSION=$(./mvnw -q -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec)" >> $GITHUB_OUTPUT
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build & Push to DockerHub
+        uses: docker/build-push-action@v5
+        with:
+          context: Backend-Development
+          file: Dockerfile
+          push: true
+          platforms: linux/arm64
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/ph-api:${{ steps.extract_version.outputs.VERSION }}
+          build-args:
+            APP_VERSION=${{ steps.extract_version.outputs.VERSION }}
+
+  deploy:
+    name: Deploy backend
+    runs-on: ubuntu-latest
+    needs: [build-image]
+    steps:
+      - name: Create deployment folder
+        run: ssh -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p ci-cd"
+
+      - name: Copy docker-compose file
+        run: scp docker-compose.yml ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:ci-cd/docker-compose.yml
+
+      - name: Deploy
+        run: |
+          ssh -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
+          cd ci-cd
+          docker-compose -f docker-compose.yml pull -q
+          docker-compose -f docker-compose.yml up -d
+          EOF
