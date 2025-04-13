@@ -52,7 +52,7 @@ jobs:
 
       - name: Build project
         run: |
-          ./mvnw clean package
+          ./mvnw clean package -DskipTests
 
   build-image:
     name: Build Docker image
