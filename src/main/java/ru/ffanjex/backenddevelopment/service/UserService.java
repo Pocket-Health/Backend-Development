@@ -71,12 +71,6 @@ public class UserService {
                 jwtTokenProvider.generateRefreshToken(user));
     }
 
-    public User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByEmail(username)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
-    }
-
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
