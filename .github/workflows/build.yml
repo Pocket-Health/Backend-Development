@@ -10,7 +10,7 @@ on:
 
 jobs:
   compile:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Compile project
     steps:
       - name: Checkout code
@@ -32,7 +32,7 @@ jobs:
           ./mvnw clean compile
 
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     name: Build backend
     needs: [compile]
     steps:
@@ -56,7 +56,7 @@ jobs:
 
   build-image:
     name: Build Docker image
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build]
     steps:
       - name: Checkout code
@@ -93,7 +93,7 @@ jobs:
 
   deploy:
     name: Deploy backend
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     needs: [build-image]
     steps:
       - name: Create deployment folder
