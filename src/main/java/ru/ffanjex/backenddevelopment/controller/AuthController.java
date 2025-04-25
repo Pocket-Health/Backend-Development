@@ -9,6 +9,7 @@ import ru.ffanjex.backenddevelopment.dto.*;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.service.PasswordRecoveryService;
 import ru.ffanjex.backenddevelopment.service.UserService;
+import yandexgpt.api.YandexGptApi;
 
 @RestController
 @RequestMapping("/api/auth")
