@@ -1,7 +1,9 @@
 package ru.ffanjex.backenddevelopment.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalTime;
@@ -9,6 +11,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class MedicationScheduleRequest {
 
     public String medication_name;
@@ -16,10 +20,4 @@ public class MedicationScheduleRequest {
 
     @JsonFormat(pattern = "HH:mm")
     public List<LocalTime> times;
-
-    public MedicationScheduleRequest(String medication_name, List<Integer> days, List<LocalTime> times) {
-        this.medication_name = medication_name;
-        this.days = days;
-        this.times = times;
-    }
 }
