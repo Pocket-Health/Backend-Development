@@ -44,7 +44,7 @@ jobs:
         run: mvn clean install -U
 
       - name: Compile project
-        run: mvn clean compile -DskipTests
+        run: ./mvnw clean compile -DskipTests
 
   build:
     runs-on: ubuntu-22.04
@@ -70,7 +70,7 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Build project
-        run: mvn clean package -DskipTests
+        run: ./mvnw clean package -DskipTests
 
   build-image:
     runs-on: ubuntu-22.04
