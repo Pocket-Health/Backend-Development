@@ -1,7 +1,8 @@
 services:
   postgres:
     container_name: postgres-sql-ph
-    image: postgres:17
+    image: arm64v8/postgres:17
+    platform: linux/arm64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 0000
@@ -19,8 +20,11 @@ services:
     restart: unless-stopped
 
   ph-api:
+    platform: linux/arm64
     container_name: ph-api
-    image: ph/ph:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-sql-ph:5432/medical_app
       SPRING_DATASOURCE_USERNAME: postgres

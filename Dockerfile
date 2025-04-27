@@ -1,10 +1,10 @@
 # Build
-FROM maven:3.9.6-eclipse-temurin-17 AS build
+FROM --platform=linux/arm64 maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /build
 COPY pom.xml .
-RUN ./mvnw dependency:go-offline
+RUN mvn dependency:go-offline
 COPY src ./src
-RUN ./mvnw clean package -DskipTests
+RUN mvn clean package -DskipTests
 
 # Runtime
 FROM amazoncorretto:17
