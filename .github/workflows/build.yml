@@ -44,7 +44,7 @@ jobs:
         run: mvn clean install -U
 
       - name: Compile project
-        run: mvn clean compile
+        run: mvn clean compile -DskipTests
 
   build:
     runs-on: ubuntu-22.04
@@ -104,7 +104,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          platforms: linux/amd64
+          platforms: linux/arm64
           tags: ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
           build-args: |
             APP_VERSION=${{ env.VERSION }}
