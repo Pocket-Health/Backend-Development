@@ -8,8 +8,8 @@ services:
       PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: medical_app
     volumes:
-      - postgres:/data/postgres
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - postgres:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5434:5432"
     networks:
@@ -22,7 +22,7 @@ services:
     container_name: ph-api
     image: ph/ph:1.0.0
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/medical_app
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-sql-ph:5432/medical_app
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 0000
     ports:
