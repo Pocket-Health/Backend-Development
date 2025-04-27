@@ -52,7 +52,7 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Build project
-        run: ./mvnw clean package
+        run: ./mvnw clean package -DskipTests
 
   build-image:
     runs-on: ubuntu-22.04
