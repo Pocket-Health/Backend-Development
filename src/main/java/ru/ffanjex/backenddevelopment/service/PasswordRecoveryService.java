@@ -21,7 +21,6 @@ public class PasswordRecoveryService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-
     @Value("${spring.mail.username}")
     private String username;
 
