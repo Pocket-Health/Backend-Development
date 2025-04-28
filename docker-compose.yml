@@ -17,14 +17,17 @@ services:
     networks:
       - spring-ph
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
     restart: unless-stopped
 
   ph-api:
-    image: ph/ph:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ph-api
     platform: linux/arm64
     ports:
       - "8087:8080"
@@ -38,7 +41,6 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
 
 networks:
   spring-ph:
