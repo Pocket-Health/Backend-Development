@@ -72,55 +72,22 @@ jobs:
       - name: Build project
         run: ./mvnw clean package -DskipTests
 
-  build-image:
-    runs-on: ubuntu-22.04
-    needs: build
+  deploy:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v3
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.7.0
         with:
-          fetch-depth: 0
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
-
-      - name: Login to DockerHub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Build & Push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          platforms: linux/arm64
-          tags: ${{ env.IMAGE_NAME }}:${{ env.VERSION }}
-          build-args: |
-            APP_VERSION=${{ env.VERSION }}
-
-  deploy:
-    runs-on: ubuntu-22.04
-    needs: build-image
-    steps:
-      - name: Create deployment folder
-        run: ssh -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} "mkdir -p ci-cd"
-
-      - name: Copy docker-compose file
-        run: scp docker-compose.yml ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }}:ci-cd/docker-compose.yml
-
-      - name: Deploy
+      - name: Deploy to server
         run: |
-          ssh -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
-          cd ci-cd
-          docker compose -f docker-compose.yml pull -q
-          docker compose -f docker-compose.yml down
-          docker compose -f docker-compose.yml up -d
+          ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} << 'EOF'
+            cd ~/PocketHealth/backend
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
           EOF
