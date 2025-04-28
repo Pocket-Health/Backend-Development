@@ -14,4 +14,4 @@ ENV SPRING_PROFILES_ACTIVE=prod
 
 EXPOSE 8087
 
-ENTRYPOINT ["sh", "-c", "java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
