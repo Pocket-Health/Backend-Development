@@ -83,11 +83,15 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      - name: Install sshpass
+        run: sudo apt-get update && sudo apt-get install -y sshpass
+
       - name: Deploy to server
         run: |
-          ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} << EOF
+          sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} << 'EOF'
             cd ~/PocketHealth/backend
             git pull origin main
             docker compose down
             docker compose up -d --build
           EOF
+      
