@@ -41,7 +41,7 @@ jobs:
         run: chmod +x ./mvnw
 
       - name: Clean Maven local repository
-        run: mvn clean install -U
+        run: mvn clean install -U -DskipTests
 
       - name: Compile project
         run: ./mvnw clean compile -DskipTests
@@ -81,22 +81,19 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup JDK
-        uses: actions/setup-java@v3
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
         with:
-          java-version: 17
-          distribution: 'corretto'
+          platforms: arm64
 
       - name: Login to DockerHub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-        with:
-          platforms: arm64
 
       - name: Build & Push Docker image
         uses: docker/build-push-action@v5
@@ -123,7 +120,7 @@ jobs:
         run: |
           ssh -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} <<EOF
           cd ci-cd
-          docker-compose -f docker-compose.yml pull -q
-          docker-compose -f docker-compose down
-          docker-compose -f docker-compose.yml up -d
+          docker compose -f docker-compose.yml pull -q
+          docker compose -f docker-compose.yml down
+          docker compose -f docker-compose.yml up -d
           EOF

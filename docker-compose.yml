@@ -1,44 +1,48 @@
+version: '3.8'
+
 services:
   postgres:
-    container_name: postgres-sql-ph
     image: arm64v8/postgres:17
+    container_name: postgres-sql-ph
     platform: linux/arm64
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 0000
-      PGDATA: /var/lib/postgresql/data
       POSTGRES_DB: medical_app
     volumes:
-      - postgres:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5434:5432"
     networks:
-      spring-ph:
-        aliases:
-          - postgres
+      - spring-ph
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
 
   ph-api:
+    image: ph/ph:1.0.0
     platform: linux/arm64
-    container_name: ph-api
-    build:
-      context: .
-      dockerfile: Dockerfile
+    ports:
+      - "8087:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-sql-ph:5432/medical_app
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: 0000
-    ports:
-      - "8087:8080"
     networks:
       - spring-ph
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+
 networks:
   spring-ph:
     driver: bridge
 
 volumes:
-  postgres:
-    driver: local
+  postgres-data:

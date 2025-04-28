@@ -1,22 +1,18 @@
-# Build
-FROM --platform=linux/arm64 maven:3.9.6-eclipse-temurin-17 AS build
+# Build stage
+FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
 WORKDIR /build
 COPY pom.xml .
-RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-# Runtime
-FROM amazoncorretto:17
-ARG APP_VERSION=0.0.1-SNAPSHOT
-
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+COPY --from=build /build/target/*.jar app.jar
 
-# Используем `COPY` с wildcard
-COPY --from=build /build/target/*.jar /app/app.jar
+ENV SPRING_PROFILES_ACTIVE=prod
+ENV DB_URL=jdbc:postgresql://postgres-sql-ph:5432/medical_app
 
 EXPOSE 8080
 
-ENV DB_URL=jdbc:postgresql://postgres-sql-ph:5432/medical_app
-
-CMD java -jar -Dspring.datasource.url=${DB_URL} app.jar
+ENTRYPOINT ["sh", "-c", "java -jar -Dspring.datasource.url=${DB_URL} app.jar"]
