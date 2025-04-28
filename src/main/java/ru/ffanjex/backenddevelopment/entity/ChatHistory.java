@@ -3,10 +3,14 @@ package ru.ffanjex.backenddevelopment.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.type.SqlTypes;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -25,7 +29,7 @@ public class ChatHistory {
     private User user;
 
     @NotNull(message = "Message can't be null")
-    @Column(name = "message", nullable = false, length = Integer.MAX_VALUE)
-    private String message;
-
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private List<Map<String, String>> messages;
 }
