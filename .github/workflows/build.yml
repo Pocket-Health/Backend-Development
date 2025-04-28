@@ -89,7 +89,7 @@ jobs:
       - name: Deploy to server
         run: |
           sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} << 'EOF'
-            cd ~/PocketHealth/backend
+            cd ~/PocketHealth/Backend-Development
             git pull origin main
             docker compose down
             docker compose up -d --build
