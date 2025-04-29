@@ -24,8 +24,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: ph-api
-    platform: linux/arm64
     ports:
       - "8087:8080"
     environment:
@@ -41,7 +39,7 @@ services:
       YAGPT_FOLDER: ${YAGPT_FOLDER}
       YAGPT_MODEL: ${YAGPT_MODEL}
     depends_on:
-      postgres:
+      postgres-sql-ph:
         condition: service_healthy
     restart: unless-stopped
 
