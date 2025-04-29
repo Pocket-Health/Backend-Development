@@ -23,8 +23,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        if (request.getRequestURI().startsWith("/api/auth/login") || request.getRequestURI().startsWith("/api/auth/register") ||
-                request.getRequestURI().startsWith("/api/auth/password_recovery")) {
+        if (request.getRequestURI().equals("/") ||
+            request.getRequestURI().startsWith("/api/auth/login") ||
+            request.getRequestURI().startsWith("/api/auth/register") ||
+            request.getRequestURI().startsWith("/api/auth/password_recovery")) {
             filterChain.doFilter(request, response);
             return;
         }
