@@ -1,101 +1,73 @@
 package ru.ffanjex.backenddevelopment.service;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
-import ru.ffanjex.backenddevelopment.entity.ChatHistory;
-import ru.ffanjex.backenddevelopment.entity.User;
-import ru.ffanjex.backenddevelopment.repository.ChatHistoryRepository;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.HttpEntity;
 
-import org.springframework.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 @Service
-@RequiredArgsConstructor
 public class ChatService {
-    private final ChatHistoryRepository chatHistoryRepository;
-    private final UserService userService;
 
-    private final String apiUrl = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
+    private static final Logger logger = LoggerFactory.getLogger(ChatService.class);
 
     @Value("${yandex.gpt.api-key}")
     private String apiKey;
 
-    @Value("${yandex.gpt.folder-id}")
-    private String folderId;
-
     @Value("${yandex.gpt.model-uri}")
     private String modelUri;
 
-    @Transactional
-    public String sendMessage(String userMessage) {
-        String currentUserEmail = getCurrentUserEmail();
-        User user = userService.getUserByEmail(currentUserEmail);
-        String gptResponse = sendToGpt(userMessage);
-        saveChat(user, userMessage, gptResponse);
-        return gptResponse;
-    }
+    @Value("${yandex.gpt.folder-id}")
+    private String folderId;
 
-    private String sendToGpt(String userMessage) {
-        RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Api-Key " + apiKey);
+    public String askGpt(String message) {
+        String apiUrl = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
 
-        Map<String, Object> requestBody = Map.of(
-                "modelUri", modelUri,
-                "completionOptions", Map.of(
-                        "stream", false,
-                        "temperature", 0.6,
-                        "maxTokens", "2000"
-                ),
-                "messages", List.of(
-                        Map.of(
-                                "role", "user",
-                                "text", userMessage
-                        )
-                )
-        );
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
+            HttpPost request = new HttpPost(apiUrl);
+            request.addHeader("Content-Type", "application/json");
+            request.addHeader("Authorization", "Api-Key " + apiKey);
+            String json = String.format(
+                    "{\"modelUri\":\"%s\",\"completionOptions\":{\"stream\":false,\"temperature\":0.3,\"maxTokens\":8000},\"messages\":[{\"role\":\"system\",\"text\":\"Ты медицинский помощник. Ты говоришь понятно и профессионально. Ты даёшь краткие, точные и достоверные медицинские объяснения. Ты не заменяешь врача, а помогаешь понять информацию о заболевании. Ты говоришь от лица мужчины. Твоя задача - выдавать информацию о возможной болезни, её описание, виды и причины по описанным пользователем симптомам.\"},{\"role\":\"user\",\"text\":\"%s\"}]}",
+                    modelUri, message.replace("\"", "\\\"")
+            );
+            request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
 
-        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
-        ResponseEntity<Map> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, Map.class);
-        if (response.getStatusCode() == HttpStatus.OK) {
-            Map<String, Object> result = (Map<String, Object>) response.getBody().get("result");
-            List<Map<String, String>> alternatives = (List<Map<String, String>>) result.get("alternatives");
-            if (!alternatives.isEmpty()) {
-                return alternatives.get(0).get("text");
+            try (CloseableHttpResponse response = httpClient.execute(request)) {
+                HttpEntity entity = response.getEntity();
+                if (entity != null) {
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent()));
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        result.append(line);
+                    }
+                    return extractTextFromJson(result.toString());
+                }
             }
+        } catch (Exception e) {
+            logger.error("There was an error when requesting: ", e);
         }
-        throw new RuntimeException("Failed to get a response from Yandex GPT.");
+        return "Request error.";
     }
 
-    private void saveChat(User user, String userMessage, String gptResponse) {
-        ChatHistory chatHistory = chatHistoryRepository.findByUser(user)
-                .orElseGet(() -> {
-                    ChatHistory newHistory = new ChatHistory();
-                    newHistory.setUser(user);
-                    newHistory.setMessages(new ArrayList<>());
-                    return newHistory;
-                });
-        Map<String, String> messagePair = Map.of(userMessage, gptResponse);
-        chatHistory.getMessages().add(messagePair);
-
-        chatHistoryRepository.save(chatHistory);
-    }
-
-    private String getCurrentUserEmail() {
-        return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    }
-
-    public List<Map<String, String>> getChatHistory() {
-        String currentUserEmail = getCurrentUserEmail();
-        User user = userService.getUserByEmail(currentUserEmail);
-        return chatHistoryRepository.findByUser(user)
-                .map(ChatHistory::getMessages)
-                .orElse(Collections.emptyList());
+    private String extractTextFromJson(String json) {
+        int start = json.indexOf("\"text\":\"");
+        if (start == -1) {
+            return "The answer is not received.";
+        }
+        start += 8;
+        int end = json.indexOf("\"", start);
+        return json.substring(start, end);
     }
 }
