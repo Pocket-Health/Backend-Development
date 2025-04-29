@@ -6,12 +6,11 @@ services:
     container_name: postgres-sql-ph
     platform: linux/arm64
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 0000
-      POSTGRES_DB: medical_app
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5434:5432"
     networks:
@@ -32,9 +31,17 @@ services:
     ports:
       - "8087:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-sql-ph:5432/medical_app
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: 0000
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-sql-ph:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ACCESS: ${JWT_ACCESS}
+      JWT_REFRESH: ${JWT_REFRESH}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+      YAGPT_KEY: ${YAGPT_KEY}
+      YAGPT_FOLDER: ${YAGPT_FOLDER}
+      YAGPT_MODEL: ${YAGPT_MODEL}
     networks:
       - spring-ph
     depends_on:
