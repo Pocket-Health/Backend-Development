@@ -1,9 +1,6 @@
 name: PocketHealth Backend API Pipeline
 
 on:
-  pull_request:
-    branches:
-      - '*'
   push:
     branches:
       - 'main'

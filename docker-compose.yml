@@ -1,10 +1,8 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: arm64v8/postgres:17
-    container_name: postgres-sql-ph
-    platform: linux/arm64
+  postgres-sql-ph:
+    image: postgres:17.3
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -42,16 +40,10 @@ services:
       YAGPT_KEY: ${YAGPT_KEY}
       YAGPT_FOLDER: ${YAGPT_FOLDER}
       YAGPT_MODEL: ${YAGPT_MODEL}
-    networks:
-      - spring-ph
     depends_on:
       postgres:
         condition: service_healthy
     restart: unless-stopped
-
-networks:
-  spring-ph:
-    driver: bridge
 
 volumes:
   postgres-data:
