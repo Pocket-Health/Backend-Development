@@ -28,8 +28,8 @@ CREATE TABLE medication_schedule (
 
 CREATE TABLE chat_history (
                               id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                              user_id UUID UNIQUE NOT NULL,
-                              message TEXT NOT NULL,
+                              user_id UUID NOT NULL,
+                              messages JSONB NOT NULL,
                               FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
