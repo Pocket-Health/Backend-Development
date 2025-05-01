@@ -8,11 +8,10 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.ffanjex.backenddevelopment.dto.MedicalCardRequest;
-import ru.ffanjex.backenddevelopment.entity.MedicalCard;
+import ru.ffanjex.backenddevelopment.dto.MedicalCardResponse;
 import ru.ffanjex.backenddevelopment.service.MedicalCardService;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,13 +29,20 @@ class MedicalCardControllerTest {
 
     @Test
     void getMedicalCard_ShouldReturnOk() {
-        MedicalCard expectedMedicalCard = new MedicalCard();
-        expectedMedicalCard.setId(UUID.randomUUID());
-        expectedMedicalCard.setFullName("Test Person");
-        when(medicalCardService.getMedicalCard()).thenReturn(expectedMedicalCard);
-        ResponseEntity<MedicalCard> response = medicalCardController.getMedicalCard();
+        MedicalCardResponse expectedResponse = new MedicalCardResponse();
+        expectedResponse.setFullName("Test Person");
+        expectedResponse.setHeight(180);
+        expectedResponse.setWeight(new BigDecimal("70"));
+        expectedResponse.setBloodType("O+");
+        expectedResponse.setAllergies("None");
+        expectedResponse.setDiseases("None");
+
+        when(medicalCardService.getMedicalCard()).thenReturn(expectedResponse);
+
+        ResponseEntity<MedicalCardResponse> response = medicalCardController.getMedicalCard();
+
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(expectedMedicalCard, response.getBody());
+        assertEquals(expectedResponse, response.getBody());
         verify(medicalCardService).getMedicalCard();
     }
 
@@ -49,15 +55,18 @@ class MedicalCardControllerTest {
         request.setBlood_type("A+");
         request.setAllergies("None");
         request.setDiseases("None");
-        MedicalCard updatedMedicalCard = new MedicalCard();
-        updatedMedicalCard.setId(UUID.randomUUID());
-        updatedMedicalCard.setFullName("Test Person");
-        when(medicalCardService.editMedicalCard(request)).thenReturn(updatedMedicalCard);
-        ResponseEntity<MedicalCard> response = medicalCardController.editMedicalCard(request);
+
+        MedicalCardResponse responseDto = new MedicalCardResponse();
+        responseDto.setFullName("Test Person");
+        responseDto.setHeight(170);
+        responseDto.setWeight(new BigDecimal(65));
+        responseDto.setBloodType("A+");
+        responseDto.setAllergies("None");
+        responseDto.setDiseases("None");
+        when(medicalCardService.editMedicalCard(request)).thenReturn(responseDto);
+        ResponseEntity<MedicalCardResponse> response = medicalCardController.editMedicalCard(request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(updatedMedicalCard, response.getBody());
+        assertEquals(responseDto, response.getBody());
         verify(medicalCardService).editMedicalCard(request);
     }
 }
-
-

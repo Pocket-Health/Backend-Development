@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import ru.ffanjex.backenddevelopment.dto.MedicalCardRequest;
+import ru.ffanjex.backenddevelopment.dto.MedicalCardResponse;
 import ru.ffanjex.backenddevelopment.entity.MedicalCard;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.repository.MedicalCardRepository;
@@ -41,20 +42,29 @@ class MedicalCardServiceTest {
     }
 
     @Test
-    void getMedicalCard_ShouldReturnMedicalCard() {
+    void getMedicalCard_ShouldReturnMedicalCardResponse() {
         User user = new User();
         MedicalCard medicalCard = new MedicalCard();
         medicalCard.setUser(user);
+        medicalCard.setFullName("Test User");
+        medicalCard.setHeight(180);
+        medicalCard.setWeight(new BigDecimal("80"));
+        medicalCard.setBloodType("B+");
+        medicalCard.setAllergies("None");
+        medicalCard.setDiseases("None");
         when(userService.getUserByEmail("test@example.com")).thenReturn(user);
         when(medicalCardRepository.findByUser(user)).thenReturn(Optional.of(medicalCard));
-        MedicalCard result = medicalCardService.getMedicalCard();
-        assertEquals(medicalCard, result);
-        verify(userService).getUserByEmail("test@example.com");
-        verify(medicalCardRepository).findByUser(user);
+        MedicalCardResponse response = medicalCardService.getMedicalCard();
+        assertEquals("Test User", response.getFullName());
+        assertEquals(180, response.getHeight());
+        assertEquals(new BigDecimal("80"), response.getWeight());
+        assertEquals("B+", response.getBloodType());
+        assertEquals("None", response.getAllergies());
+        assertEquals("None", response.getDiseases());
     }
 
     @Test
-    void editMedicalCard_ShouldUpdateAndReturnMedicalCard() {
+    void editMedicalCard_ShouldUpdateAndReturnMedicalCardResponse() {
         User user = new User();
         MedicalCard medicalCard = new MedicalCard();
         medicalCard.setUser(user);
@@ -65,18 +75,17 @@ class MedicalCardServiceTest {
         request.setBlood_type("A+");
         request.setAllergies("Pollen");
         request.setDiseases("Asthma");
-
         when(userService.getUserByEmail("test@example.com")).thenReturn(user);
         when(medicalCardRepository.findByUser(user)).thenReturn(Optional.of(medicalCard));
         when(medicalCardRepository.save(any(MedicalCard.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        MedicalCardResponse response = medicalCardService.editMedicalCard(request);
+        assertEquals("Test Person", response.getFullName());
+        assertEquals(180, response.getHeight());
+        assertEquals(new BigDecimal(75), response.getWeight());
+        assertEquals("A+", response.getBloodType());
+        assertEquals("Pollen", response.getAllergies());
+        assertEquals("Asthma", response.getDiseases());
 
-        MedicalCard updatedMedicalCard = medicalCardService.editMedicalCard(request);
-        assertEquals("Test Person", updatedMedicalCard.getFullName());
-        assertEquals(180, updatedMedicalCard.getHeight());
-        assertEquals(new BigDecimal(75), updatedMedicalCard.getWeight());
-        assertEquals("A+", updatedMedicalCard.getBloodType());
-        assertEquals("Pollen", updatedMedicalCard.getAllergies());
-        assertEquals("Asthma", updatedMedicalCard.getDiseases());
         verify(medicalCardRepository).save(medicalCard);
     }
 

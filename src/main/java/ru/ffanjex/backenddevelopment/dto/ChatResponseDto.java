@@ -2,10 +2,9 @@ package ru.ffanjex.backenddevelopment.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
 @Data
 @AllArgsConstructor
-public class ChatResponseGpt {
+public class ChatResponseDto {
     private String message;
 }

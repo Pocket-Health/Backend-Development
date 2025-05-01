@@ -3,16 +3,11 @@ package ru.ffanjex.backenddevelopment.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import ru.ffanjex.backenddevelopment.dto.MedicalCardDTO;
 import ru.ffanjex.backenddevelopment.dto.MedicalCardRequest;
+import ru.ffanjex.backenddevelopment.dto.MedicalCardResponse;
 import ru.ffanjex.backenddevelopment.entity.MedicalCard;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.repository.MedicalCardRepository;
-
-import java.util.List;
-import java.util.Optional;
-
 
 @Service
 @RequiredArgsConstructor
@@ -21,36 +16,44 @@ public class MedicalCardService {
     private final MedicalCardRepository medicalCardRepository;
     private final UserService userService;
 
-    public MedicalCard getMedicalCard() {
+    public MedicalCardResponse getMedicalCard() {
         String currentUserEmail = getCurrentUserEmail();
         User user = userService.getUserByEmail(currentUserEmail);
-        Optional<MedicalCard> medicalCards = medicalCardRepository.findByUser(user);
-        return medicalCards.get();
+        MedicalCard medicalCard = medicalCardRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("Medical card not found"));
+        return mapToResponse(medicalCard);
     }
 
-    public MedicalCard editMedicalCard(MedicalCardRequest medicalCardRequest) {
+    public MedicalCardResponse editMedicalCard(MedicalCardRequest request) {
         String currentUserEmail = getCurrentUserEmail();
         User user = userService.getUserByEmail(currentUserEmail);
-        Optional<MedicalCard> medicalCardOpt = medicalCardRepository.findByUser(user);
-        if (medicalCardOpt.isEmpty()) {
-            throw new IllegalArgumentException("Medical card not found");
-        }
-
-        MedicalCard medicalCard = medicalCardOpt.get();
+        MedicalCard medicalCard = medicalCardRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException("Medical card not found"));
 
         if (!medicalCard.getUser().equals(user)) {
             throw new IllegalArgumentException("Medical card does not belong to the current user");
         }
 
-        medicalCard.setFullName(medicalCardRequest.getFullname());
-        medicalCard.setHeight(medicalCardRequest.getHeight());
-        medicalCard.setWeight(medicalCardRequest.getWeight());
-        medicalCard.setBloodType(medicalCardRequest.getBlood_type());
-        medicalCard.setAllergies(medicalCardRequest.getAllergies());
-        medicalCard.setDiseases(medicalCardRequest.getDiseases());
+        medicalCard.setFullName(request.getFullname());
+        medicalCard.setHeight(request.getHeight());
+        medicalCard.setWeight(request.getWeight());
+        medicalCard.setBloodType(request.getBlood_type());
+        medicalCard.setAllergies(request.getAllergies());
+        medicalCard.setDiseases(request.getDiseases());
 
-        MedicalCard updatedMedicalCard = medicalCardRepository.save(medicalCard);
-        return updatedMedicalCard;
+        medicalCardRepository.save(medicalCard);
+        return mapToResponse(medicalCard);
+    }
+
+    private MedicalCardResponse mapToResponse(MedicalCard card) {
+        MedicalCardResponse response = new MedicalCardResponse();
+        response.setFullName(card.getFullName());
+        response.setHeight(card.getHeight());
+        response.setWeight(card.getWeight());
+        response.setBloodType(card.getBloodType());
+        response.setAllergies(card.getAllergies());
+        response.setDiseases(card.getDiseases());
+        return response;
     }
 
     private String getCurrentUserEmail() {
