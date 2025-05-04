@@ -42,7 +42,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             String token = header.substring(7);
 
             if (jwtTokenProvider.isValidToken(token)) {
-                SecurityContextHolder.getContext().setAuthentication(jwtTokenProvider.getAuthentication(token));
+                var authentication = jwtTokenProvider.getAuthentication(token);
+                if (authentication != null) {
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } else {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Failed to parse authentication from token");
+                    return;
+                }
             } else {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.getWriter().write("Invalid or expired token");
@@ -53,7 +60,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             response.getWriter().write("Missing Authorization header");
             return;
         }
-
         filterChain.doFilter(request, response);
     }
 }
