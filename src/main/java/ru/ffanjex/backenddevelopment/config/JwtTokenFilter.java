@@ -22,7 +22,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().startsWith("/api/auth/login")
+        if (request.getRequestURI().equals("/")
+                || request.getRequestURI().startsWith("/api/auth/login")
                 || request.getRequestURI().startsWith("/api/auth/register")
                 || request.getRequestURI().startsWith("/api/auth/password_recovery")
                 || request.getRequestURI().startsWith("/swagger-ui")
