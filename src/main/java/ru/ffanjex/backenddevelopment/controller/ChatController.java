@@ -10,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.ffanjex.backenddevelopment.dto.ChatRequestDto;
 import ru.ffanjex.backenddevelopment.dto.ChatResponseDto;
+import ru.ffanjex.backenddevelopment.entity.ChatHistory;
 import ru.ffanjex.backenddevelopment.service.ChatService;
-
 
 @RestController
 @RequestMapping("/api/chat")
@@ -37,5 +37,25 @@ public class ChatController {
     public ChatResponseDto sendQuestion(@RequestBody ChatRequestDto request) {
         String answer = chatService.askGpt(request.getMessage());
         return new ChatResponseDto(answer);
+    }
+
+    @Operation(
+            summary = "Get chat history",
+            description = "Retrieve the user's latest chat history (up to 20 messages)"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Chat history fetched successfully",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ChatHistory.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid user data",
+                    content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found",
+                    content = @Content),
+            @ApiResponse(responseCode = "500", description = "Internal server error",
+                    content = @Content)
+    })
+    @GetMapping("/chat_history")
+    public ChatHistory getChatHistory() {
+        return chatService.getChatHistory();
     }
 }
