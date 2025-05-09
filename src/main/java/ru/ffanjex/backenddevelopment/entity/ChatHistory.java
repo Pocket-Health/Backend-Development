@@ -8,9 +8,9 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.UuidGenerator;
 import org.hibernate.type.SqlTypes;
+import ru.ffanjex.backenddevelopment.dto.ChatMessage;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -28,8 +28,8 @@ public class ChatHistory {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotNull(message = "Message can't be null")
+    @NotNull(message = "Messages can't be null")
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    private List<Map<String, String>> messages;
+    private List<ChatMessage> messages;
 }
