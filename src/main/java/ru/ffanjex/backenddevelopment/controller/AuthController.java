@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.ffanjex.backenddevelopment.config.JwtTokenProvider;
 import ru.ffanjex.backenddevelopment.dto.*;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.service.PasswordRecoveryService;
@@ -23,6 +24,7 @@ public class AuthController {
 
     private final UserService userService;
     private final PasswordRecoveryService passwordRecoveryService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     @Operation(summary = "Check if email is available")
     @ApiResponses(value = {
@@ -99,5 +101,20 @@ public class AuthController {
     public ResponseEntity<String> resetPassword(@Valid @RequestBody PasswordResetRequest passwordResetRequest) {
         passwordRecoveryService.resetPassword(passwordResetRequest.getEmail(), passwordResetRequest.getPassword());
         return ResponseEntity.ok("Password reset successfully");
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh(@RequestBody @Valid RefreshTokenRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+        if (!jwtTokenProvider.isValidToken(refreshToken)) {
+            return ResponseEntity.status(401).body("Invalid refresh token");
+        }
+
+        String email = jwtTokenProvider.getEmailFromToken(refreshToken);
+        User user = userService.getUserByEmail(email);
+        String newAccessToken = jwtTokenProvider.generateAccessToken(user);
+        String newRefreshToken = jwtTokenProvider.generateRefreshToken(user);
+
+        return ResponseEntity.ok(new JwtResponse(newAccessToken, newRefreshToken));
     }
 }

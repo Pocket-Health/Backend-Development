@@ -26,6 +26,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 || request.getRequestURI().startsWith("/api/auth/login")
                 || request.getRequestURI().startsWith("/api/auth/register")
                 || request.getRequestURI().startsWith("/api/auth/password_recovery")
+                || request.getRequestURI().startsWith("/api/auth/refresh")
                 || request.getRequestURI().startsWith("/swagger-ui")
                 || request.getRequestURI().startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
