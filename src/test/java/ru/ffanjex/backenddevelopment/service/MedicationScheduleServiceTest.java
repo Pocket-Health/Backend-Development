@@ -9,6 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import ru.ffanjex.backenddevelopment.dto.MedicationScheduleRequest;
+import ru.ffanjex.backenddevelopment.dto.MedicationScheduleResponse;
 import ru.ffanjex.backenddevelopment.entity.MedicationSchedule;
 import ru.ffanjex.backenddevelopment.entity.User;
 import ru.ffanjex.backenddevelopment.repository.MedicationScheduleRepository;
@@ -58,12 +59,13 @@ class MedicationScheduleServiceTest {
     @Test
     void getUserSchedules_ShouldReturnSchedules() {
         MedicationSchedule schedule = new MedicationSchedule();
+        schedule.setId(UUID.randomUUID());
         schedule.setMedicationName("Aspirin");
         schedule.setScheduledDays(List.of(1, 2));
         schedule.setScheduledTimes(List.of(LocalTime.of(8, 0)));
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         when(medicationScheduleRepository.findByUser(user)).thenReturn(List.of(schedule));
-        List<MedicationSchedule> schedules = medicationScheduleService.getUserSchedules();
+        List<MedicationScheduleResponse> schedules = medicationScheduleService.getUserScheduleResponses();
         assertEquals(1, schedules.size());
         assertEquals("Aspirin", schedules.get(0).getMedicationName());
         verify(medicationScheduleRepository).findByUser(user);

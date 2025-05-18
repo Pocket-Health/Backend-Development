@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.ffanjex.backenddevelopment.dto.MedicationScheduleRequest;
+import ru.ffanjex.backenddevelopment.dto.MedicationScheduleResponse;
 import ru.ffanjex.backenddevelopment.entity.MedicationSchedule;
 import ru.ffanjex.backenddevelopment.service.MedicationScheduleService;
 
@@ -33,16 +34,16 @@ class MedicationScheduleControllerTest {
 
     @Test
     void getMedicationSchedule_ShouldReturnListOfSchedules() {
-        MedicationSchedule firstSchedule = new MedicationSchedule();
-        MedicationSchedule secondSchedule = new MedicationSchedule();
-        List<MedicationSchedule> schedules = List.of(firstSchedule,
-                secondSchedule);
-        when(medicationScheduleService.getUserSchedules()).thenReturn(schedules);
-        ResponseEntity<List<MedicationSchedule>> response = medicationScheduleController
-                .getUserSchedules();
+        MedicationScheduleResponse firstSchedule = new MedicationScheduleResponse(
+                UUID.randomUUID(), "Aspirin", List.of(1, 2), List.of(LocalTime.of(8, 0)));
+        MedicationScheduleResponse secondSchedule = new MedicationScheduleResponse(
+                UUID.randomUUID(), "Paracetamol", List.of(3, 5), List.of(LocalTime.of(12, 0)));
+        List<MedicationScheduleResponse> schedules = List.of(firstSchedule, secondSchedule);
+        when(medicationScheduleService.getUserScheduleResponses()).thenReturn(schedules);
+        ResponseEntity<List<MedicationScheduleResponse>> response = medicationScheduleController.getUserSchedules();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(schedules, response.getBody());
-        verify(medicationScheduleService).getUserSchedules();
+        verify(medicationScheduleService).getUserScheduleResponses();
     }
 
     @Test

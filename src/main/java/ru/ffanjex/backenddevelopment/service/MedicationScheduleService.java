@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ru.ffanjex.backenddevelopment.dto.MedicationScheduleResponse;
 import ru.ffanjex.backenddevelopment.entity.MedicationSchedule;
 import ru.ffanjex.backenddevelopment.dto.MedicationScheduleRequest;
 import ru.ffanjex.backenddevelopment.entity.User;
@@ -15,6 +16,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +26,20 @@ public class MedicationScheduleService {
     private final UserRepository userRepository;
     private static final Logger logger = LoggerFactory.getLogger(MedicationScheduleService.class);
 
-    public List<MedicationSchedule> getUserSchedules() {
+    public List<MedicationScheduleResponse> getUserScheduleResponses() {
         String currentUserEmail = getCurrentUserEmail();
         User user = findUserByEmail(currentUserEmail);
 
         List<MedicationSchedule> schedules = medicationScheduleRepository.findByUser(user);
-        logger.info("Fetched {} schedules for user {}", schedules.size(), currentUserEmail);
-        return schedules;
+
+        return schedules.stream()
+                .map(schedule -> new MedicationScheduleResponse(
+                        schedule.getId(),
+                        schedule.getMedicationName(),
+                        schedule.getScheduledDays(),
+                        schedule.getScheduledTimes()
+                ))
+                .toList();
     }
 
     public MedicationSchedule addSchedule(MedicationScheduleRequest request) {

@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.ffanjex.backenddevelopment.dto.ChatHistoryResponse;
 import ru.ffanjex.backenddevelopment.dto.ChatRequestDto;
 import ru.ffanjex.backenddevelopment.dto.ChatResponseDto;
 import ru.ffanjex.backenddevelopment.entity.ChatHistory;
@@ -55,7 +56,7 @@ public class ChatController {
                     content = @Content)
     })
     @GetMapping("/chat_history")
-    public ChatHistory getChatHistory() {
+    public ChatHistoryResponse getChatHistory() {
         return chatService.getChatHistory();
     }
 }
