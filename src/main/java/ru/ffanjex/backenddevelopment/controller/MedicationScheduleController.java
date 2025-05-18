@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.ffanjex.backenddevelopment.dto.MedicationScheduleRequest;
+import ru.ffanjex.backenddevelopment.dto.MedicationScheduleResponse;
 import ru.ffanjex.backenddevelopment.entity.MedicationSchedule;
 import ru.ffanjex.backenddevelopment.service.MedicationScheduleService;
 
@@ -35,8 +36,8 @@ public class MedicationScheduleController {
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = MedicationSchedule.class)))
     @GetMapping("/schedules")
-    public ResponseEntity<List<MedicationSchedule>> getUserSchedules() {
-        List<MedicationSchedule> schedules = medicationScheduleService.getUserSchedules();
+    public ResponseEntity<List<MedicationScheduleResponse>> getUserSchedules() {
+        List<MedicationScheduleResponse> schedules = medicationScheduleService.getUserScheduleResponses();
         logger.info("Fetched {} schedules for user", schedules.size());
         return ResponseEntity.ok(schedules);
     }

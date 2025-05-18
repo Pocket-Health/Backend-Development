@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import ru.ffanjex.backenddevelopment.dto.ChatHistoryResponse;
 import ru.ffanjex.backenddevelopment.dto.ChatMessage;
 import ru.ffanjex.backenddevelopment.dto.MessageContent;
 import ru.ffanjex.backenddevelopment.entity.*;
@@ -111,10 +112,15 @@ public class ChatService {
         return json.substring(start, end);
     }
 
-    public ChatHistory getChatHistory() {
+    public ChatHistoryResponse getChatHistory() {
         String email = getCurrentUserEmail();
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Пользователь не найден: " + email));
-        return chatHistoryRepository.findByUserId(user.getId());
+        ChatHistory chatHistory = chatHistoryRepository.findByUserId(user.getId());
+        if (chatHistory == null) {
+            return new ChatHistoryResponse();
+        }
+
+        return new ChatHistoryResponse(chatHistory.getMessages());
     }
 }
