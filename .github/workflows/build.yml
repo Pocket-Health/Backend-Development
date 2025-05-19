@@ -62,7 +62,7 @@ jobs:
         run: |
           sshpass -p "${{ secrets.VPS_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p 2222 ${{ secrets.VPS_USERNAME }}@${{ secrets.VPS_IP }} << 'EOF'
             cd ~/PocketHealth/Backend-Development
-            git pull origin main
+            git pull --no-rebase origin main
             docker compose down
             docker compose up -d --build
           EOF
