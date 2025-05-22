@@ -16,9 +16,13 @@ public class SettingsService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void changePassword(String newPassword) {
+    public void changePassword(String oldPassword, String newPassword) {
         String email = getCurrentUserEmail();
         User user = userService.getUserByEmail(email);
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);

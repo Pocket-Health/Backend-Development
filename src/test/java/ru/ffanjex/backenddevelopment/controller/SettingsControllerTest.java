@@ -42,12 +42,13 @@ class SettingsControllerTest {
     @Test
     void changePassword_ShouldReturnSuccessMessage() {
         PasswordChangeRequest request = new PasswordChangeRequest();
-        request.setPassword("newPassword123");
-        doNothing().when(settingsService).changePassword(request.getPassword());
+        request.setOldPassword("oldPassword123");
+        request.setNewPassword("newPassword123");
+        doNothing().when(settingsService).changePassword(request.getOldPassword(), request.getNewPassword());
         ResponseEntity<?> response = settingsController.changePassword(request);
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("Password changes successfully", response.getBody());
-        verify(settingsService).changePassword(request.getPassword());
+        assertEquals("Password changed successfully", response.getBody());
+        verify(settingsService).changePassword(request.getOldPassword(), request.getNewPassword());
     }
 
     @Test
