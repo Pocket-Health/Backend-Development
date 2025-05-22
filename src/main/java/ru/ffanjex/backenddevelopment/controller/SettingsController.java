@@ -41,8 +41,21 @@ public class SettingsController {
     })
     @PutMapping("/change_password")
     public ResponseEntity<?> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest) {
-        settingsService.changePassword(passwordChangeRequest.getPassword());
-        return ResponseEntity.ok("Password changes successfully");
+
+        if (passwordChangeRequest.getOldPassword().equals(passwordChangeRequest.getNewPassword())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body("New password must be different from the old password");
+        }
+
+        try {
+            settingsService.changePassword(passwordChangeRequest.getOldPassword(), passwordChangeRequest.getNewPassword());
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(e.getMessage());
+        }
     }
 
     @Operation(summary = "Enable notifications", description = "Turns on notifications for the user")

@@ -47,12 +47,18 @@ class SettingsServiceTest {
 
     @Test
     void changePassword_ShouldEncodeAndSaveNewPassword() {
+        String oldPassword = "oldPassword";
         String newPassword = "newPassword";
-        String encodePassword = "encodePassword";
+        String encodedOldPassword = "encodedOldPassword";
+        String encodedNewPassword = "encodedNewPassword";
+        User user = new User();
+        user.setEmail("test@example.com");
+        user.setPassword(encodedOldPassword);
         when(userService.getUserByEmail("test@example.com")).thenReturn(user);
-        when(passwordEncoder.encode(newPassword)).thenReturn(encodePassword);
-        settingsService.changePassword(newPassword);
-        assertEquals(encodePassword, user.getPassword());
+        when(passwordEncoder.matches(oldPassword, encodedOldPassword)).thenReturn(true);
+        when(passwordEncoder.encode(newPassword)).thenReturn(encodedNewPassword);
+        settingsService.changePassword(oldPassword, newPassword);
+        assertEquals(encodedNewPassword, user.getPassword());
         verify(userRepository).save(user);
     }
 

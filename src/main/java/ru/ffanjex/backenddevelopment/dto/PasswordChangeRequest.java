@@ -4,5 +4,6 @@ import lombok.Data;
 
 @Data
 public class PasswordChangeRequest {
-    private String password;
+    private String oldPassword;
+    private String newPassword;
 }
