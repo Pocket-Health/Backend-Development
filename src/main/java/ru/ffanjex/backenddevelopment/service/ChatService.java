@@ -109,7 +109,11 @@ public class ChatService {
         }
         start += 8;
         int end = json.indexOf("\"", start);
-        return json.substring(start, end);
+        if (end == -1) {
+            return "Ответ не получен.";
+        }
+        String extracted = json.substring(start, end);
+        return extracted.replaceAll("\\\\n|\\n|\\r", " ").replaceAll("\\s{2,}", " ").trim();
     }
 
     public ChatHistoryResponse getChatHistory() {
